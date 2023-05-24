@@ -3,30 +3,30 @@ pipeline {
   stages {
     stage('Docker Build') {
       steps {
-        sh "docker build -t supaket/podinfo:${env.BUILD_NUMBER} ."
+        sh "docker build -t sunas/podinfo:${env.BUILD_NUMBER} ."
       }
     }
     stage('Docker Push') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
           sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-          sh "docker push supaket/podinfo:${env.BUILD_NUMBER}"
+          sh "docker push sunas/podinfo:${env.BUILD_NUMBER}"
         }
       }
     }
-    stage('Docker Remove Image') {
-      steps {
-        sh "docker rmi supaket/podinfo:${env.BUILD_NUMBER}"
-      }
-    }
-    stage('Apply Kubernetes Files') {
-      steps {
-          withKubeConfig([credentialsId: 'kubeconfig']) {
-          sh 'cat deployment.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f -'
-          sh 'kubectl apply -f service.yaml'
-        }
-      }
-  }
+  //   stage('Docker Remove Image') {
+  //     steps {
+  //       sh "docker rmi sunas/podinfo:${env.BUILD_NUMBER}"
+  //     }
+  //   }
+  //   stage('Apply Kubernetes Files') {
+  //     steps {
+  //         withKubeConfig([credentialsId: 'kubeconfig']) {
+  //         sh 'cat deployment.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f -'
+  //         sh 'kubectl apply -f service.yaml'
+  //       }
+  //     }
+  // }
 }
 post {
     success {
